@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search, AlertCircle, UsersIcon } from 'lucide-react';
+import { getUsers } from '@/services/locationService';
 import UserCard from './UserCard';
 import UserCardSkeleton from './UserCardSkeleton';
 import type { User } from '@/types/user';
@@ -31,30 +32,16 @@ export default function UserFeed() {
       setError(null);
 
       try {
-        const skip = pageNum * USERS_PER_PAGE;
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/GetUsersList?take=${USERS_PER_PAGE}&skip=${skip}`
+        const newUsers = await getUsers(
+          USERS_PER_PAGE,
+          pageNum * USERS_PER_PAGE
         );
-
-        // if (!res.ok) {
-        //   throw new Error(`Error: ${res.status} ${res.statusText}`);
-        // }
-
-        const result = await res.json();
-
-        console.log({ result });
-
-        // if (!result?.users) {
-        //   throw new Error('Invalid API response.');
-        // }
-
         if (reset) {
-          setUsers(result.users);
+          setUsers(newUsers);
         } else {
-          setUsers(prev => [...prev, ...result.users]);
+          setUsers(prev => [...prev, ...newUsers]);
         }
-
-        setHasMore(result.users.length === USERS_PER_PAGE);
+        setHasMore(newUsers.length === USERS_PER_PAGE);
         setPage(pageNum);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch users');
@@ -62,7 +49,7 @@ export default function UserFeed() {
         setLoading(false);
       }
     },
-    [loading]
+    [loading, page]
   );
 
   useEffect(() => {
@@ -163,6 +150,12 @@ export default function UserFeed() {
             <UserCardSkeleton key={index} />
           ))}
       </div>
+
+      {/* {loading && (
+        <div className="flex justify-center items-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      )} */}
 
       {filteredUsers.length === 0 && !loading && !error && (
         <Card className="mt-8">
