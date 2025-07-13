@@ -1,55 +1,59 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { MapPin, Send, Users, Wifi, WifiOff } from "lucide-react"
-import { useSignalR } from "@/hooks/useSignalR"
-import MapView from "./MapView"
-import Link from "next/link"
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Send, Users, Wifi, WifiOff } from 'lucide-react';
+import { useSignalR } from '@/hooks/useSignalR';
+import MapView from './MapView';
+import Link from 'next/link';
 
 export default function LocationSharing() {
-  const [userName, setUserName] = useState("")
-  const [lat, setLat] = useState("")
-  const [lon, setLon] = useState("")
-  const { connection, isConnected, locations, sendLocation } = useSignalR()
+  const [userName, setUserName] = useState('');
+  const [lat, setLat] = useState('');
+  const [lon, setLon] = useState('');
+  const { isConnected, locations, sendLocation } = useSignalR();
 
   const handleSendLocation = () => {
-    if (!userName || !lat || !lon) return
+    if (!userName || !lat || !lon) return;
 
-    const latitude = Number.parseFloat(lat)
-    const longitude = Number.parseFloat(lon)
+    const latitude = Number.parseFloat(lat);
+    const longitude = Number.parseFloat(lon);
 
-    if (isNaN(latitude) || isNaN(longitude)) return
+    if (isNaN(latitude) || isNaN(longitude)) return;
 
-    sendLocation(latitude, longitude, userName)
-  }
+    sendLocation(latitude, longitude, userName);
+  };
 
   const getCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLat(position.coords.latitude.toString())
-          setLon(position.coords.longitude.toString())
+        position => {
+          setLat(position.coords.latitude.toString());
+          setLon(position.coords.longitude.toString());
         },
-        (error) => {
-          console.error("Error getting location:", error)
-        },
-      )
+        error => {
+          console.error('Error getting location:', error);
+        }
+      );
     }
-  }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Real-Time Location Sharing</h1>
-            <p className="text-gray-600">Share and track live GPS coordinates using SignalR WebSockets</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Real-Time Location Sharing
+            </h1>
+            <p className="text-gray-600">
+              Share and track live GPS coordinates using SignalR WebSockets
+            </p>
           </div>
           <Link href="/">
             <Button variant="outline">← Back to Home</Button>
@@ -60,7 +64,10 @@ export default function LocationSharing() {
           {isConnected ? (
             <>
               <Wifi className="w-4 h-4 text-green-600" />
-              <Badge variant="outline" className="text-green-600 border-green-600">
+              <Badge
+                variant="outline"
+                className="text-green-600 border-green-600"
+              >
                 Connected
               </Badge>
             </>
@@ -73,7 +80,8 @@ export default function LocationSharing() {
             </>
           )}
           <span className="text-sm text-gray-500">
-            {locations.length} active location{locations.length !== 1 ? "s" : ""}
+            {locations.length} active location
+            {locations.length !== 1 ? 's' : ''}
           </span>
         </div>
       </div>
@@ -106,7 +114,7 @@ export default function LocationSharing() {
                     id="userName"
                     placeholder="Enter your name"
                     value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
+                    onChange={e => setUserName(e.target.value)}
                   />
                 </div>
                 <div>
@@ -115,7 +123,7 @@ export default function LocationSharing() {
                     id="latitude"
                     placeholder="e.g., 40.7128"
                     value={lat}
-                    onChange={(e) => setLat(e.target.value)}
+                    onChange={e => setLat(e.target.value)}
                   />
                 </div>
                 <div>
@@ -124,7 +132,7 @@ export default function LocationSharing() {
                     id="longitude"
                     placeholder="e.g., -74.0060"
                     value={lon}
-                    onChange={(e) => setLon(e.target.value)}
+                    onChange={e => setLon(e.target.value)}
                   />
                 </div>
               </div>
@@ -166,5 +174,5 @@ export default function LocationSharing() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
