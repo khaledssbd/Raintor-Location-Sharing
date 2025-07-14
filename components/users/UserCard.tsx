@@ -11,13 +11,17 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user }: UserCardProps) {
+
+  console.log({ user });
+
+
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-6">
         <div className="flex items-center space-x-4 mb-4">
           <div className="relative">
             <Image
-              src={user.avatar || "/placeholder.svg?height=48&width=48"}
+              src={user.image}
               alt={`${user.username}'s avatar`}
               width={48}
               height={48}
@@ -29,7 +33,7 @@ export default function UserCard({ user }: UserCardProps) {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{user.username}</h3>
+            <h3 className="font-semibold text-gray-900 truncate ">{user.firstName} {user.lastName}</h3>
             <p className="text-sm text-gray-600 truncate">{user.company.title}</p>
           </div>
         </div>
