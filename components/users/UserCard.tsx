@@ -11,8 +11,6 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user }: UserCardProps) {
-  console.log({ user });
-
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-6">
@@ -55,11 +53,7 @@ export default function UserCard({ user }: UserCardProps) {
 
           <div className="flex items-center space-x-2 text-sm">
             <Type className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <span
-              className="text-gray-600 capitalize"
-            >
-              {user.gender}
-            </span>
+            <span className="text-gray-600 capitalize">{user.gender}</span>
           </div>
 
           <div className="flex items-center space-x-2 text-sm">
