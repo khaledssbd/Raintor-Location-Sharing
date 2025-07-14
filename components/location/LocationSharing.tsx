@@ -27,6 +27,9 @@ export default function LocationSharing() {
     if (isNaN(latitude) || isNaN(longitude)) return;
 
     sendLocation(latitude, longitude, userName);
+    setLat('');
+    setLon('');
+    setUserName('');
   };
 
   const getCurrentLocation = () => {

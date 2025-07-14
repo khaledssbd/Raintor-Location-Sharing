@@ -7,6 +7,7 @@ import {
   LogLevel,
 } from '@microsoft/signalr';
 import type { LocationData } from '@/types/location';
+import { toast } from 'sonner';
 
 export function useSignalR() {
   const [connection, setConnection] = useState<HubConnection | null>(null);
@@ -94,7 +95,8 @@ export function useSignalR() {
       if (connection && isConnected) {
         try {
           await connection.invoke('SendLatLon', lat, lon, userName);
-          console.log('Location sent:', { lat, lon, userName });
+          // console.log('Location sent:', { lat, lon, userName });
+          toast.success(`Location sent: lat=${lat}, lon=${lon}, userName=${userName}`);
         } catch (error) {
           console.error('Error sending location:', error);
         }
