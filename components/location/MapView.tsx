@@ -13,9 +13,7 @@ export default function MapView({ locations }: MapViewProps) {
   const markersRef = useRef<L.Marker[]>([]);
   const [LRef, setLRef] = useState<typeof import('leaflet') | null>(null);
 
-  console.log({ locations });
-
-  // Dynamically import Leaflet on client
+  // Dynamically import Leaflet only on client
   useEffect(() => {
     const loadLeaflet = async () => {
       const L = (await import('leaflet')).default;
@@ -33,47 +31,52 @@ export default function MapView({ locations }: MapViewProps) {
 
       setLRef(L);
     };
+
     loadLeaflet();
   }, []);
 
-  // Initialize map once
+  // Initialize map once L and container are ready
   useEffect(() => {
     if (!LRef || !mapRef.current || mapInstanceRef.current) return;
 
-    mapInstanceRef.current = LRef.map(mapRef.current).setView(
-      [40.7128, -74.006],
-      10
-    );
+    const map = LRef.map(mapRef.current, {
+      center: [40.7128, -74.006],
+      zoom: 10,
+      scrollWheelZoom: true,
+    });
 
     LRef.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-    }).addTo(mapInstanceRef.current);
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
 
     const handleResize = () => {
-      mapInstanceRef.current?.invalidateSize();
+      map.invalidateSize();
     };
+
     window.addEventListener('resize', handleResize);
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      mapInstanceRef.current?.remove();
+      map.remove();
       mapInstanceRef.current = null;
     };
   }, [LRef]);
 
-  // Update markers on location change
+  // Update markers when locations change
   useEffect(() => {
     if (!LRef || !mapInstanceRef.current) return;
 
-    // Remove existing markers
+    const map = mapInstanceRef.current;
+
+    // Remove previous markers
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
     // Add new markers
     locations.forEach(loc => {
-      const marker = LRef.marker([loc.lat, loc.lon]).addTo(
-        mapInstanceRef.current!
-      ).bindPopup(`
+      const marker = LRef.marker([loc.lat, loc.lon]).addTo(map).bindPopup(`
           <div>
             <strong>${loc.userName}</strong><br>
             Lat: ${loc.lat.toFixed(6)}<br>
@@ -85,57 +88,58 @@ export default function MapView({ locations }: MapViewProps) {
             }</small>
           </div>
         `);
+
       markersRef.current.push(marker);
     });
 
-    // Fit map to markers if locations exist
+    // Fit map to show all markers if locations exist
     if (locations.length > 0) {
       const group = LRef.featureGroup(markersRef.current);
-      mapInstanceRef.current.fitBounds(group.getBounds().pad(0.2));
+      map.fitBounds(group.getBounds().pad(0.2));
     }
   }, [locations, LRef]);
 
-  return (
-    <div className="space-y-4">
-      <div
-        ref={mapRef}
-        className="h-96 w-full rounded-lg border"
-        style={{ minHeight: '400px' }}
-      />
+ return (
+   <div className="space-y-4">
+     <div
+       ref={mapRef}
+       className="relative w-full max-h-screen rounded-lg border overflow-hidden"
+     />
 
-      {locations.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p>No active locations. Send a location to see it on the map!</p>
-        </div>
-      )}
+     {locations.length === 0 && (
+       <div className="text-center py-8 text-gray-500">
+         <p>No active locations. Send a location to see it on the map!</p>
+       </div>
+     )}
 
-      {locations.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="font-semibold">
-            Active Locations ({locations.length})
-          </h3>
-          <div className="grid gap-2">
-            {locations.map((location, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div>
-                  <span className="font-medium">{location.userName}</span>
-                  <div className="text-sm text-gray-600">
-                    {location.lat}, {location.lon}
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {location.timestamp
-                    ? new Date(location.timestamp).toLocaleTimeString()
-                    : 'N/A'}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+     {locations.length > 0 && (
+       <div className="space-y-2">
+         <h3 className="font-semibold">
+           Active Locations ({locations.length})
+         </h3>
+         <div className="grid gap-2">
+           {locations.map((location, index) => (
+             <div
+               key={index}
+               className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+             >
+               <div>
+                 <span className="font-medium">{location.userName}</span>
+                 <div className="text-sm text-gray-600">
+                   {location.lat.toFixed(6)}, {location.lon.toFixed(6)}
+                 </div>
+               </div>
+               <div className="text-xs text-gray-500">
+                 {location.timestamp
+                   ? new Date(location.timestamp).toLocaleTimeString()
+                   : 'N/A'}
+               </div>
+             </div>
+           ))}
+         </div>
+       </div>
+     )}
+   </div>
+ );
+
 }
