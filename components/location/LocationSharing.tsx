@@ -11,6 +11,7 @@ import { MapPin, Send, Users, Wifi, WifiOff } from 'lucide-react';
 import { useSignalR } from '@/hooks/useSignalR';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 const MapView = dynamic(() => import('./MapView'), {
   ssr: false,
@@ -23,12 +24,26 @@ export default function LocationSharing() {
   const { isConnected, locations, sendLocation } = useSignalR();
 
   const handleSendLocation = () => {
-    if (!userName || !lat || !lon) return;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!userName || !lat || !lon) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    // Validate email format
+    if (!emailRegex.test(userName)) {
+      toast.warning('Please enter a valid email address in User Name field!');
+      return;
+    }
 
     const latitude = Number.parseFloat(lat);
     const longitude = Number.parseFloat(lon);
 
-    if (isNaN(latitude) || isNaN(longitude)) return;
+    if (isNaN(latitude) || isNaN(longitude)) {
+      toast.warning('Please enter valid coordinates!');
+      return;
+    }
 
     sendLocation(latitude, longitude, userName);
     setLat('');

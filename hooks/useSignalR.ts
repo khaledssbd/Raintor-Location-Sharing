@@ -44,8 +44,6 @@ export function useSignalR() {
               timestamp: new Date().toISOString(),
             };
 
-            console.log({ newLocation });
-
             setLocations(prev => {
               // Update existing user location or add new one
               const existingIndex = prev.findIndex(
@@ -98,7 +96,9 @@ export function useSignalR() {
         try {
           await connection.invoke('SendLatLon', lat, lon, userName);
           // console.log('Location sent:', { lat, lon, userName });
-          toast.success(`Location sent: lat=${lat}, lon=${lon}, userName=${userName}`);
+          toast.success(
+            `Location sent: lat=${lat}, lon=${lon}, userName=${userName}`
+          );
         } catch (error) {
           console.error('Error sending location:', error);
         }
