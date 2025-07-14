@@ -34,7 +34,7 @@ export default function UserFeed() {
       try {
         const skip = pageNum * USERS_PER_PAGE;
         const response = await fetch(
-          `https://tech-test.raintor.com/api/users/GetUsersList?take=${USERS_PER_PAGE}&skip=${skip}`
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/GetUsersList?take=${USERS_PER_PAGE}&skip=${skip}`
         );
 
         if (!response.ok) {
