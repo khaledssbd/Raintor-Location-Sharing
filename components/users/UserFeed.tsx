@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search, AlertCircle, UsersIcon } from 'lucide-react';
-import { getUsers } from '@/services/locationService';
 import UserCard from './UserCard';
 import UserCardSkeleton from './UserCardSkeleton';
 import type { User } from '@/types/user';
@@ -28,20 +27,29 @@ export default function UserFeed() {
   const fetchUsers = useCallback(
     async (pageNum: number, reset = false) => {
       if (loading) return;
+
       setLoading(true);
       setError(null);
 
       try {
-        const newUsers = await getUsers(
-          USERS_PER_PAGE,
-          pageNum * USERS_PER_PAGE
+        const skip = pageNum * USERS_PER_PAGE;
+        const response = await fetch(
+          `https://tech-test.raintor.com/api/users/GetUsersList?take=${USERS_PER_PAGE}&skip=${skip}`
         );
-        if (reset) {
-          setUsers(newUsers);
-        } else {
-          setUsers(prev => [...prev, ...newUsers]);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        setHasMore(newUsers.length === USERS_PER_PAGE);
+
+        const data = await response.json();
+
+        if (reset) {
+          setUsers(data.users);
+        } else {
+          setUsers(prev => [...prev, ...data.users]);
+        }
+
+        setHasMore(data.users.length === USERS_PER_PAGE);
         setPage(pageNum);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch users');
@@ -49,19 +57,17 @@ export default function UserFeed() {
         setLoading(false);
       }
     },
-    [loading, page]
+    [loading]
   );
 
+  // Initial load
   useEffect(() => {
     fetchUsers(0, true);
-  }, [fetchUsers]);
+  }, []);
 
+  // Intersection Observer for infinite scroll
   useEffect(() => {
     if (loading || !hasMore) return;
-
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
 
     observerRef.current = new IntersectionObserver(
       entries => {
@@ -77,15 +83,19 @@ export default function UserFeed() {
     }
 
     return () => {
-      observerRef.current?.disconnect();
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
     };
   }, [loading, hasMore, page, fetchUsers]);
 
-  const filteredUsers = users.filter(user =>
-    [user.username, user.email, user.university, user.company?.title]
-      .join(' ')
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
+  // Filter users based on search term
+  const filteredUsers = users.filter(
+    user =>
+      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.university.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.company.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleRetry = () => {
@@ -113,7 +123,7 @@ export default function UserFeed() {
 
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Search users..."
               value={searchTerm}
@@ -141,21 +151,15 @@ export default function UserFeed() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredUsers.map(user => (
-          <UserCard key={user.id} user={user} />
+        {filteredUsers.map((user, index) => (
+          <UserCard key={`${user.id}-${index}`} user={user} />
         ))}
 
         {loading &&
           Array.from({ length: USERS_PER_PAGE }).map((_, index) => (
-            <UserCardSkeleton key={index} />
+            <UserCardSkeleton key={`skeleton-${index}`} />
           ))}
       </div>
-
-      {/* {loading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-        </div>
-      )} */}
 
       {filteredUsers.length === 0 && !loading && !error && (
         <Card className="mt-8">
@@ -173,6 +177,7 @@ export default function UserFeed() {
         </Card>
       )}
 
+      {/* Intersection Observer target */}
       <div ref={loadingRef} className="h-10" />
 
       {!hasMore && filteredUsers.length > 0 && (
