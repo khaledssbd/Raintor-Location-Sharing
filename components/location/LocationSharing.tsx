@@ -21,7 +21,6 @@ export default function LocationSharing() {
   const [lat, setLat] = useState('');
   const [lon, setLon] = useState('');
   const { isConnected, locations, sendLocation } = useSignalR();
-  console.log({ locations });
 
   const handleSendLocation = () => {
     if (!userName || !lat || !lon) return;

@@ -1,6 +1,6 @@
 export interface LocationData {
-  lat: number
-  lon: number
-  userName: string
-  timestamp: string
+  lat: number;
+  lon: number;
+  userName: string;
+  timestamp: string;
 }
