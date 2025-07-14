@@ -36,18 +36,18 @@ export function useSignalR() {
         // Listen for location updates
         newConnection.on(
           'ReceiveLatLon',
-          (lat: number, lon: number, userName: string) => {
+          (location: { lat: number; lon: number; userName: string }) => {
             const locationData: LocationData = {
-              lat,
-              lon,
-              userName,
+              lat: location.lat,
+              lon: location.lon,
+              userName: location.userName,
               timestamp: new Date().toISOString(),
             };
 
             setLocations(prev => {
               // Update existing user location or add new one
               const existingIndex = prev.findIndex(
-                loc => loc.userName === userName
+                location => location.userName === location.userName
               );
               if (existingIndex >= 0) {
                 const updated = [...prev];

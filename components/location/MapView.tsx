@@ -13,6 +13,8 @@ export default function MapView({ locations }: MapViewProps) {
   const markersRef = useRef<L.Marker[]>([]);
   const [LRef, setLRef] = useState<typeof import('leaflet') | null>(null);
 
+  console.log({ locations });
+
   // Dynamically import Leaflet on client
   useEffect(() => {
     const loadLeaflet = async () => {
@@ -121,7 +123,7 @@ export default function MapView({ locations }: MapViewProps) {
                 <div>
                   <span className="font-medium">{location.userName}</span>
                   <div className="text-sm text-gray-600">
-                    {location.lat.toFixed(6)}, {location.lon.toFixed(6)}
+                    {location.lat}, {location.lon}
                   </div>
                 </div>
                 <div className="text-xs text-gray-500">
