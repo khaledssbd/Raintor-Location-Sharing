@@ -1,19 +1,17 @@
-"use client"
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Mail, Phone, GraduationCap, Building } from "lucide-react"
-import type { User } from "@/types/user"
-import Image from "next/image"
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Mail, Phone, GraduationCap, Building, Type } from 'lucide-react';
+import type { User } from '@/types/user';
+import Image from 'next/image';
 
 interface UserCardProps {
-  user: User
+  user: User;
 }
 
 export default function UserCard({ user }: UserCardProps) {
-
   console.log({ user });
-
 
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
@@ -26,15 +24,19 @@ export default function UserCard({ user }: UserCardProps) {
               width={48}
               height={48}
               className="rounded-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement
-                target.src = "/placeholder.svg?height=48&width=48"
+              onError={e => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder.svg?height=48&width=48';
               }}
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate ">{user.firstName} {user.lastName}</h3>
-            <p className="text-sm text-gray-600 truncate">{user.company.title}</p>
+            <h3 className="font-semibold text-gray-900 truncate ">
+              {user.firstName} {user.lastName}
+            </h3>
+            <p className="text-sm text-gray-600 truncate">
+              {user.company.title}
+            </p>
           </div>
         </div>
 
@@ -49,6 +51,15 @@ export default function UserCard({ user }: UserCardProps) {
           <div className="flex items-center space-x-2 text-sm">
             <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <span className="text-gray-600">{user.phone}</span>
+          </div>
+
+          <div className="flex items-center space-x-2 text-sm">
+            <Type className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <span
+              className="text-gray-600 capitalize"
+            >
+              {user.gender}
+            </span>
           </div>
 
           <div className="flex items-center space-x-2 text-sm">
@@ -73,5 +84,5 @@ export default function UserCard({ user }: UserCardProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
