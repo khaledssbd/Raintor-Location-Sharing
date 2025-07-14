@@ -9,8 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Send, Users, Wifi, WifiOff } from 'lucide-react';
 import { useSignalR } from '@/hooks/useSignalR';
-import MapView from './MapView';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
+
+const MapView = dynamic(() => import('./MapView'), {
+  ssr: false,
+});
 
 export default function LocationSharing() {
   const [userName, setUserName] = useState('');
